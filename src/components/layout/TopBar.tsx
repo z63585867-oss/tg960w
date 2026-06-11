@@ -17,14 +17,17 @@ export function TopBar() {
       </button>
 
       {/* Brand */}
-      <Link href="/" className="flex items-center gap-2 mr-2">
-        <span className="font-black text-[15px] tracking-tight">
+      <Link href="/" className="flex items-center gap-2 mr-4 flex-shrink-0">
+        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+          <Zap size={12} className="text-amber-950" />
+        </div>
+        <span className="font-black text-sm tracking-tight hidden sm:block">
           <span className="g-text">TG960W</span>
         </span>
       </Link>
 
       <button onClick={openQuickSearch}
-        className="flex items-center gap-2 flex-1 max-w-sm px-3 py-1.5 rounded-lg text-sm border transition-all duration-200 hover:border-amber-500/30"
+        className="flex items-center gap-2 flex-1 max-w-md px-3 py-1.5 rounded-lg text-sm border transition-all duration-200 hover:border-amber-500/30"
         style={{ background: '#111118', borderColor: '#252532', color: '#8b8a92' }}>
         <Search size={14} />
         <span className="flex-1 text-left">搜索智能体…</span>

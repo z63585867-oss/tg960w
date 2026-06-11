@@ -107,8 +107,8 @@ export default async function HomePage() {
       <section>
         <div className="flex items-end justify-between mb-8">
           <div>
-            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-amber-400/60 mb-3">Fresh Arrivals</p>
-            <h2 className="text-2xl font-bold text-zinc-100">最新入库</h2>
+            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-amber-400/60 mb-3">最新入库</p>
+            <h2 className="text-2xl font-bold text-zinc-100">智能体目录</h2>
           </div>
           <Link href="/skills?sort=recent" className="btn btn-ghost text-sm">
             查看全部 <ArrowRight size={14} />
@@ -130,7 +130,7 @@ export default async function HomePage() {
       <section>
         <div className="flex items-end justify-between mb-8">
           <div>
-            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-amber-400/60 mb-3">Readings</p>
+            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-amber-400/60 mb-3">每日更新</p>
             <h2 className="text-2xl font-bold text-zinc-100">使用指南</h2>
           </div>
           <Link href="/blog" className="btn btn-ghost text-sm">
@@ -169,7 +169,7 @@ export default async function HomePage() {
       {/* ========== CATEGORIES ========== */}
       <section>
         <div className="mb-8">
-          <p className="text-xs font-semibold tracking-[0.15em] uppercase text-amber-400/60 mb-3">Categories</p>
+          <p className="text-xs font-semibold tracking-[0.15em] uppercase text-amber-400/60 mb-3">全部门类</p>
           <h2 className="text-2xl font-bold text-zinc-100">探索门类</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
