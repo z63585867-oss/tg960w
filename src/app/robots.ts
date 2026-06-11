@@ -1,0 +1,11 @@
+import { MetadataRoute } from "next";
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: [
+      { userAgent: "*", allow: "/" },
+      { userAgent: "GPTBot", disallow: "/api/" },
+    ],
+    sitemap: "https://tg960w.com/sitemap.xml",
+  };
+}

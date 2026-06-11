@@ -1,0 +1,215 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: oklch(0.13 0.02 270);
+  --color-surface: oklch(0.17 0.02 270);
+  --color-surface2: oklch(0.21 0.02 270);
+  --color-border: oklch(0.25 0.02 270);
+  --color-text: oklch(0.92 0.01 270);
+  --color-text2: oklch(0.65 0.02 260);
+  --color-accent: oklch(0.62 0.22 280);
+  --color-accent2: oklch(0.72 0.22 280);
+  --color-accent-bg: oklch(0.62 0.22 280 / 0.15);
+  --color-green: oklch(0.65 0.18 160);
+  --color-yellow: oklch(0.75 0.15 85);
+  --color-red: oklch(0.55 0.22 20);
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text2); }
+
+.light body, body.light, .light {
+  --color-bg: oklch(0.97 0.01 270);
+  --color-surface: oklch(1 0 0);
+  --color-surface2: oklch(0.95 0.01 270);
+  --color-border: oklch(0.88 0.02 260);
+  --color-text: oklch(0.15 0.03 270);
+  --color-text2: oklch(0.45 0.03 260);
+  --color-accent: oklch(0.50 0.22 280);
+  --color-accent2: oklch(0.55 0.22 280);
+  --color-accent-bg: oklch(0.50 0.22 280 / 0.1);
+  color-scheme: light;
+}
+
+.light body, body.light {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* ========== Utilities ========== */
+
+.glass {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(12px);
+}
+
+.glass-hover:hover {
+  border-color: var(--color-accent);
+  background: var(--color-surface2);
+}
+
+.card {
+  border-radius: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 4px 24px -8px var(--color-accent-bg);
+}
+
+.card-interactive {
+  composes: card;
+  cursor: pointer;
+  transform: translateY(0);
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px -8px var(--color-accent-bg);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: white;
+}
+.btn-primary:hover { background: var(--color-accent2); }
+
+.btn-secondary {
+  background: var(--color-surface2);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+.btn-secondary:hover { border-color: var(--color-accent); background: var(--color-surface); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text2);
+}
+.btn-ghost:hover { background: var(--color-surface2); color: var(--color-text); }
+
+.btn-sm { padding: 0.25rem 0.625rem; font-size: 0.75rem; border-radius: 0.375rem; }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.675rem;
+  font-weight: 500;
+  background: var(--color-surface2);
+  color: var(--color-text2);
+  border: 1px solid var(--color-border);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.375rem;
+  border-radius: 9999px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+}
+
+/* ========== Layout ========== */
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--color-text2);
+  transition: all 0.12s ease;
+  text-decoration: none;
+}
+.sidebar-link:hover { background: var(--color-surface2); color: var(--color-text); }
+.sidebar-link.active { background: var(--color-accent-bg); color: var(--color-accent); font-weight: 600; }
+
+/* ========== Markdown ========== */
+
+.md-body { line-height: 1.75; color: var(--color-text); }
+.md-body h1, .md-body h2, .md-body h3 { color: var(--color-text); margin: 1.5em 0 0.5em; font-weight: 600; }
+.md-body h1 { font-size: 1.5rem; letter-spacing: -0.02em; }
+.md-body h2 { font-size: 1.2rem; letter-spacing: -0.01em; }
+.md-body h3 { font-size: 1.05rem; }
+.md-body code { background: var(--color-surface2); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.875em; font-family: var(--font-mono); }
+.md-body pre { background: oklch(0.1 0.01 270); padding: 1rem 1.25rem; border-radius: 0.75rem; overflow-x: auto; border: 1px solid var(--color-border); }
+.md-body pre code { background: none; padding: 0; font-size: 0.8rem; }
+.md-body a { color: var(--color-accent); text-decoration: none; }
+.md-body a:hover { text-decoration: underline; }
+.md-body ul, .md-body ol { padding-left: 1.5em; }
+.md-body li { margin: 0.25em 0; }
+.md-body blockquote { border-left: 3px solid var(--color-accent); padding: 0.25em 1em; margin: 1em 0; color: var(--color-text2); background: var(--color-surface2); border-radius: 0 0.5rem 0.5rem 0; }
+.md-body table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+.md-body th, .md-body td { padding: 0.5em 0.75em; border: 1px solid var(--color-border); text-align: left; font-size: 0.875rem; }
+.md-body th { background: var(--color-surface2); font-weight: 600; }
+.md-body hr { border: none; border-top: 1px solid var(--color-border); margin: 2em 0; }
+
+/* ========== Overlay ========== */
+
+.overlay-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: oklch(0 0 0 / 0.5);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+}
+
+/* ========== Skeleton ========== */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-surface2) 50%, var(--color-surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
