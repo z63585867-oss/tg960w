@@ -13,6 +13,7 @@ interface UIState {
 
   setTheme: (theme: 'dark' | 'light') => void;
   toggleSidebar: () => void;
+  setSidebarOpen: (open: boolean) => void;
   openQuickSearch: () => void;
   closeQuickSearch: () => void;
   setViewMode: (mode: 'grid' | 'list') => void;
@@ -33,6 +34,7 @@ export const useUIStore = create<UIState>()(
 
       setTheme: (theme) => set({ theme }),
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
+        setSidebarOpen: (open) => set({ sidebarOpen: open }),
       openQuickSearch: () => set({ quickSearchOpen: true }),
       closeQuickSearch: () => set({ quickSearchOpen: false }),
       setViewMode: (mode) => set({ viewMode: mode }),

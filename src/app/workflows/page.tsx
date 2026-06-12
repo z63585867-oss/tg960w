@@ -1,89 +1,47 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Plus, Workflow as WorkflowIcon, ArrowRight, Play, Trash2, Clock, Edit3 } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
-import type { Workflow } from '@/types';
+import { Plus, Play, Trash2, Clock } from 'lucide-react';
 import { toast } from 'sonner';
+
+interface Workflow { id: string; name: string; description?: string; runCount: number; lastRunAt?: string; steps?: any[]; }
 
 export default function WorkflowsPage() {
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const load = () => {
-    setLoading(true);
-    fetch('/api/workflows')
-      .then((r) => r.json())
-      .then((d) => setWorkflows(d.workflows || []))
-      .finally(() => setLoading(false));
+  const fetchAll = () => {
+    fetch('/api/workflows').then(r => r.json()).then(d => { setWorkflows(d.workflows||[]); setLoading(false); }).catch(()=>setLoading(false));
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { fetchAll(); }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('确定删除？')) return;
     await fetch(`/api/workflows/${id}`, { method: 'DELETE' });
-    toast.success('已删除');
-    load();
-  };
-
-  const handleRun = async (id: string) => {
-    const res = await fetch(`/api/workflows/${id}/execute`, { method: 'POST' });
-    const data = await res.json();
-    navigator.clipboard.writeText(data.commands.map((c: any) => c.command).join('\n'));
-    toast.success('命令已复制到剪贴板');
+    toast.success('已删除'); fetchAll();
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2"><WorkflowIcon className="w-6 h-6" />工作流</h1>
-          <p className="text-sm text-[var(--color-text2)] mt-0.5">编排技能，一键执行</p>
-        </div>
-        <Link href="/workflows/new" className="btn btn-primary"><Plus className="w-4 h-4" />创建</Link>
+    <div className="page" style={{ paddingTop: 32, paddingBottom: 64 }}>
+      <div className="section-head">
+        <div className="section-head-bar" />
+        <h1 className="section-head-title">工作流</h1>
+        <Link href="/workflows/new" className="btn btn-red btn-sm" style={{ marginLeft: "auto" }}><Plus size={14} /> 新建</Link>
       </div>
 
       {loading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 3 }).map((_, i) => (<div key={i} className="skeleton h-28 w-full rounded-xl" />))}
-        </div>
+        <div style={{ display:"flex",flexDirection:"column",gap:8}}>{Array.from({length:3}).map((_,i)=><div key={i} style={{height:80,background:"var(--paper)",borderRadius:"var(--radius)"}}/>)}</div>
       ) : workflows.length === 0 ? (
-        <div className="text-center py-16 card">
-          <WorkflowIcon className="w-16 h-16 mx-auto mb-4 opacity-10" />
-          <p className="text-[var(--color-text2)] text-lg mb-1">暂无工作流</p>
-          <p className="text-[var(--color-text2)] text-sm opacity-70 mb-4">创建你的第一个技能编排工作流</p>
-          <Link href="/workflows/new" className="btn btn-primary">开始创建</Link>
-        </div>
+        <div className="card" style={{ padding: 64, textAlign: "center" }}><div style={{fontSize:36,marginBottom:12}}>🔧</div><div className="body">还没有工作流</div><Link href="/workflows/new" className="btn btn-red" style={{marginTop:16,display:"inline-flex"}}>创建第一个</Link></div>
       ) : (
-        <div className="space-y-3">
-          {workflows.map((wf) => (
-            <div key={wf.id} className="card p-5">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h3 className="font-semibold">{wf.name}</h3>
-                  {wf.description && <p className="text-sm text-[var(--color-text2)] mt-0.5">{wf.description}</p>}
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <button onClick={() => handleRun(wf.id)} className="btn btn-sm" style={{ background: 'oklch(0.65 0.18 160 / 0.15)', color: 'var(--color-green)' }}>
-                    <Play className="w-3 h-3" /> 执行
-                  </button>
-                  <Link href={`/workflows/${wf.id}`} className="btn btn-sm btn-ghost"><Edit3 className="w-3 h-3" /></Link>
-                  <button onClick={() => handleDelete(wf.id)} className="btn btn-sm btn-ghost hover:!text-red-400"><Trash2 className="w-3 h-3" /></button>
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 flex-wrap mb-2">
-                {wf.steps.map((s, i) => (
-                  <span key={s.id} className="flex items-center gap-1">
-                    {i > 0 && <ArrowRight className="w-3 h-3 text-[var(--color-text2)]" />}
-                    <span className="tag">{s.skillName || s.skillSlug}</span>
-                  </span>
-                ))}
-              </div>
-              <div className="flex items-center gap-4 text-xs text-[var(--color-text2)]">
-                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{formatDate(wf.createdAt)}</span>
-                {wf.runCount > 0 && <span>执行 {wf.runCount} 次</span>}
-              </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {workflows.map(w => (
+            <div key={w.id} className="card" style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 20px" }}>
+              <Link href={`/workflows/${w.id}`} style={{ flex: 1, textDecoration: "none", color: "inherit" }}>
+                <div style={{ fontWeight: 700, fontSize: 15 }}>{w.name}</div>
+                <div style={{ fontSize: 12, color: "var(--text3)", marginTop: 2 }}>{w.steps?.length || 0} 步骤 · {w.runCount} 次运行</div>
+              </Link>
+              <button onClick={() => fetch(`/api/workflows/${w.id}/execute`,{method:'POST'}).then(()=>toast.success('已执行'))} className="btn btn-line btn-sm"><Play size={12} /></button>
+              <button onClick={() => handleDelete(w.id)} className="btn btn-line btn-sm" style={{ color: "var(--red)" }}><Trash2 size={12} /></button>
             </div>
           ))}
         </div>

@@ -1,61 +1,47 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import Link from 'next/link';
 import { SkillCard } from '@/components/ui/SkillCard';
 import { Pagination } from '@/components/ui/Pagination';
 import { SkeletonCard } from '@/components/ui/Skeleton';
 import { CATEGORIES } from '@/lib/categories';
 import type { Skill } from '@/types';
-import { ArrowLeft } from 'lucide-react';
-
-interface PaginationMeta { page: number; pageSize: number; total: number; totalPages: number; }
 
 export default function CategoryPage() {
-  const params = useParams();
-  const cat = params.cat as string;
+  const { cat } = useParams<{ cat: string }>();
   const [skills, setSkills] = useState<Skill[]>([]);
-  const [pagination, setPagination] = useState<PaginationMeta>({ page: 1, pageSize: 20, total: 0, totalPages: 0 });
+  const [pagination, setPagination] = useState({ page: 1, totalPages: 1 });
   const [loading, setLoading] = useState(true);
-  const catDef = CATEGORIES.find((c) => c.slug === cat);
+  const def = CATEGORIES.find(c => c.id === cat);
 
-  const fetchPage = (p: number) => {
+  const fetchPage = async (p = 1) => {
     setLoading(true);
-    fetch(`/api/skills?category=${cat}&page=${p}&pageSize=20`)
-      .then((r) => r.json())
-      .then((d) => { setSkills(d.skills || []); setPagination(d.pagination || { page: 1, pageSize: 20, total: 0, totalPages: 0 }); })
-      .finally(() => setLoading(false));
+    const r = await fetch(`/api/skills?category=${cat}&page=${p}&limit=24`);
+    const d = await r.json();
+    setSkills(d.skills || []);
+    setPagination({ page: d.pagination.page, totalPages: d.pagination.totalPages });
+    setLoading(false);
   };
 
   useEffect(() => { fetchPage(1); }, [cat]);
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <Link href="/skills" className="flex items-center gap-1.5 text-sm text-[var(--color-text2)] hover:text-[var(--color-text)] mb-6 transition-colors">
-        <ArrowLeft className="w-4 h-4" /> 返回全部技能
-      </Link>
-
-      <div className="flex items-center gap-4 mb-6">
-        <span className="text-4xl">{catDef?.icon || '📦'}</span>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{catDef?.name || cat}</h1>
-          <p className="text-sm text-[var(--color-text2)]">{pagination.total} 个技能</p>
-        </div>
+    <div className="page" style={{ paddingTop: 32, paddingBottom: 64 }}>
+      <div className="section-head">
+        <div className="section-head-bar" />
+        <h1 className="section-head-title">{def?.name || cat}</h1>
+        <span className="tag tag-gray">{pagination.page * 24}+ 个</span>
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 8 }).map((_, i) => (<SkeletonCard key={i} />))}
-        </div>
+        <div className="grid-4">{Array.from({length:8}).map((_,i)=><SkeletonCard key={i}/>)}</div>
+      ) : skills.length === 0 ? (
+        <div className="card" style={{ padding: 64, textAlign: "center" }}><div style={{fontSize:40,marginBottom:12}}>📭</div><div className="body">该分类下暂无智能体</div></div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {skills.map((s) => (<SkillCard key={s.id} skill={s} />))}
-        </div>
+        <div className="grid-4">{skills.map(s => <SkillCard key={s.id} skill={s} />)}</div>
       )}
 
-      <Pagination page={pagination.page} totalPages={pagination.totalPages}
-        onPageChange={(p) => { fetchPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
+      <Pagination page={pagination.page} totalPages={pagination.totalPages} onPageChange={fetchPage} />
     </div>
   );
 }

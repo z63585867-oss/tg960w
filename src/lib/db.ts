@@ -9,8 +9,12 @@ const globalForPrisma = globalThis as unknown as {
 function createClient(): PrismaClient {
   const dbUrl = process.env.DATABASE_URL || 'file:./prisma/skillos.db';
 
+  const adapterUrl = dbUrl.startsWith('libsql://') || dbUrl.startsWith('http')
+    ? dbUrl
+    : dbUrl.startsWith('file:') ? dbUrl : `file:${dbUrl}`;
+
   const adapter = new PrismaLibSql({
-    url: dbUrl.startsWith('file:') ? dbUrl : `file:${dbUrl}`,
+    url: adapterUrl,
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

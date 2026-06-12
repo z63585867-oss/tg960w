@@ -1,129 +1,71 @@
 'use client';
-
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Plus, X, GripVertical, Save, Play, Search } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowLeft, Plus, X, Save } from 'lucide-react';
 import type { Skill } from '@/types';
-import { CATEGORIES } from '@/lib/categories';
 import { toast } from 'sonner';
-
-interface Step { skillSlug: string; label: string; skillName: string; }
 
 export default function NewWorkflowPage() {
   const router = useRouter();
   const [name, setName] = useState('');
   const [desc, setDesc] = useState('');
-  const [steps, setSteps] = useState<Step[]>([]);
-  const [allSkills, setAllSkills] = useState<Skill[]>([]);
+  const [steps, setSteps] = useState<string[]>([]);
+  const [skills, setSkills] = useState<Skill[]>([]);
   const [search, setSearch] = useState('');
-  const [cat, setCat] = useState('');
 
-  useEffect(() => {
-    fetch('/api/skills?pageSize=2000')
-      .then((r) => r.json())
-      .then((d) => setAllSkills(d.skills || []))
-      .catch(() => {});
-  }, []);
+  useEffect(() => { fetch('/api/skills?limit=200').then(r=>r.json()).then(d=>setSkills(d.skills||[])).catch(()=>{}); }, []);
 
-  const filtered = allSkills.filter((s) => {
-    if (cat && s.category !== cat) return false;
-    if (search) { const q = search.toLowerCase(); return s.name.toLowerCase().includes(q) || s.slug.toLowerCase().includes(q); }
-    return true;
-  });
+  const filtered = skills.filter(s => !steps.includes(s.slug) && s.name.toLowerCase().includes(search.toLowerCase()));
 
-  const save = async () => {
+  const handleSave = async () => {
     if (!name.trim()) return toast.error('请输入名称');
-    if (!steps.length) return toast.error('请添加至少一个技能');
-    const res = await fetch('/api/workflows', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, description: desc, steps }),
-    });
-    if (res.ok) { toast.success('已创建'); router.push('/workflows'); }
-    else toast.error('创建失败');
-  };
-
-  const run = () => {
-    if (!steps.length) return;
-    navigator.clipboard.writeText(steps.map((s) => `/${s.skillSlug}`).join('\n'));
-    toast.success('命令已复制');
+    const r = await fetch('/api/workflows', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, description: desc, steps: steps.map((s,i)=>({ skillId: s, orderIndex: i })) }) });
+    if (r.ok) { toast.success('创建成功'); router.push('/workflows'); } else { toast.error('创建失败'); }
   };
 
   return (
-    <div className="flex gap-6 max-w-6xl mx-auto h-[calc(100vh-7rem)]">
-      {/* Builder */}
-      <div className="flex-1 overflow-auto">
-        <Link href="/workflows" className="flex items-center gap-1.5 text-sm text-[var(--color-text2)] hover:text-[var(--color-text)] mb-4">
-          <ArrowLeft className="w-4 h-4" /> 返回
-        </Link>
-        <div className="card p-6">
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="工作流名称…"
-            className="w-full text-xl font-bold bg-transparent border-none outline-none text-[var(--color-text)] placeholder:text-[var(--color-text2)] mb-2" />
-          <input type="text" value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="描述（可选）…"
-            className="w-full text-sm bg-transparent border-none outline-none text-[var(--color-text2)] mb-6" />
+    <div className="page" style={{ paddingTop: 32, paddingBottom: 64, maxWidth: 700 }}>
+      <Link href="/workflows" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "var(--text3)", textDecoration: "none", fontSize: 13, marginBottom: 24 }}>
+        <ArrowLeft size={14} /> 返回
+      </Link>
 
-          <div>
-            <h3 className="text-sm font-medium text-[var(--color-text2)] mb-3">步骤 ({steps.length})</h3>
-            {!steps.length ? (
-              <div className="text-center py-12 rounded-xl border-2 border-dashed border-[var(--color-border)] text-sm text-[var(--color-text2)]">
-                点击右侧面板添加技能步骤
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {steps.map((s, i) => (
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg"
-                    style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)' }}>
-                    <GripVertical className="w-4 h-4 text-[var(--color-text2)] cursor-grab" />
-                    <span className="text-xs font-mono text-[var(--color-accent)] w-6">{i + 1}.</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">{s.skillName}</div>
-                      <div className="text-[10px] text-[var(--color-text2)] font-mono">/{s.skillSlug}</div>
-                    </div>
-                    <button onClick={() => setSteps(steps.filter((_, j) => j !== i))}
-                      className="p-1 text-[var(--color-text2)] hover:text-red-400 transition-colors"><X className="w-3.5 h-3.5" /></button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-3 mt-4">
-          <button onClick={save} className="btn btn-primary"><Save className="w-4 h-4" />保存</button>
-          <button onClick={run} className="btn btn-secondary" style={{ color: 'var(--color-green)', borderColor: 'oklch(0.65 0.18 160 / 0.3)' }}>
-            <Play className="w-4 h-4" />执行并复制命令
-          </button>
+      <div className="section-head"><div className="section-head-bar" /><h1 className="section-head-title">新建工作流</h1></div>
+
+      <div className="card card-padded" style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <input value={name} onChange={e => setName(e.target.value)} placeholder="工作流名称" style={{ padding:"10px 14px", borderRadius:8, border:"1px solid var(--line)", background:"var(--ink)", color:"var(--text)", fontSize:15, outline:"none" }} />
+          <textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder="描述（可选）" rows={2} style={{ padding:"10px 14px", borderRadius:8, border:"1px solid var(--line)", background:"var(--ink)", color:"var(--text)", fontSize:14, outline:"none", resize:"vertical" }} />
         </div>
       </div>
 
-      {/* Palette */}
-      <div className="w-72 shrink-0">
-        <div className="sticky top-0 card p-4 max-h-[calc(100vh-9rem)] flex flex-col">
-          <h4 className="font-medium text-sm mb-3">技能面板</h4>
-          <div className="relative mb-2">
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--color-text2)]" />
-            <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="搜索…"
-              className="w-full pl-8 pr-3 py-1.5 rounded-lg text-xs border outline-none bg-[var(--color-bg)] border-[var(--color-border)] focus:border-[var(--color-accent)]" />
-          </div>
-          <div className="flex gap-1 mb-3 flex-wrap">
-            <button onClick={() => setCat('')} className={`tag !text-[10px] cursor-pointer ${!cat ? '!bg-[var(--color-accent-bg)] !text-[var(--color-accent)]' : ''}`}>全部</button>
-            {CATEGORIES.slice(0, 8).map((c) => (
-              <button key={c.id} onClick={() => setCat(c.id === cat ? '' : c.id)}
-                className={`tag !text-[10px] cursor-pointer ${cat === c.id ? '!bg-[var(--color-accent-bg)] !text-[var(--color-accent)]' : ''}`}>{c.icon}</button>
+      <div className="card card-padded" style={{ marginBottom: 16 }}>
+        <div style={{ fontWeight: 700, marginBottom: 12 }}>步骤 ({steps.length})</div>
+        {steps.length > 0 && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+            {steps.map((s, i) => (
+              <span key={s} className="tag tag-red" style={{ cursor: "pointer" }} onClick={() => setSteps(steps.filter(x => x !== s))}>
+                {i+1}. {s} <X size={10} />
+              </span>
             ))}
           </div>
-          <div className="flex-1 overflow-y-auto space-y-0.5">
-            {filtered.slice(0, 80).map((s) => (
-              <button key={s.id} onClick={() => { setSteps([...steps, { skillSlug: s.slug, label: '', skillName: s.name }]); }}
-                className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left text-xs hover:bg-[var(--color-bg)] transition-colors group">
-                <Plus className="w-3 h-3 text-[var(--color-text2)] opacity-0 group-hover:opacity-100 flex-shrink-0" />
-                <span className="flex-1 truncate">{s.name}</span>
-                <span className="text-[10px] text-[var(--color-text2)] truncate max-w-20">{s.slug}</span>
-              </button>
-            ))}
-          </div>
+        )}
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="搜索智能体添加…" style={{ width:"100%", padding:"8px 14px", borderRadius:8, border:"1px solid var(--line)", background:"var(--ink)", color:"var(--text)", fontSize:13, outline:"none", marginBottom:8 }} />
+        <div style={{ maxHeight: 200, overflow: "auto" }}>
+          {filtered.slice(0, 20).map(s => (
+            <button key={s.id} onClick={() => setSteps([...steps, s.slug])}
+              style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "8px 10px", border: "none", background: "none", cursor: "pointer", borderRadius: 6, textAlign: "left", color: "var(--text)", fontSize: 13 }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--ink)"}
+              onMouseLeave={e => e.currentTarget.style.background = "none"}>
+              <Plus size={12} style={{ color: "var(--text3)" }} /> {s.name}
+            </button>
+          ))}
         </div>
       </div>
+
+      <button onClick={handleSave} className="btn btn-red" style={{ width: "100%", justifyContent: "center", padding: "12px" }}>
+        <Save size={16} /> 保存
+      </button>
     </div>
   );
 }

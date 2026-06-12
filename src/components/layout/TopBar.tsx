@@ -1,32 +1,60 @@
 'use client';
 
-import { Search, Sun, Moon, PanelLeftOpen, PanelLeftClose } from 'lucide-react';
+import { Search } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useUIStore } from '@/stores/ui';
 
+const NAV = [
+  { href: '/', label: '首页' },
+  { href: '/skills', label: '智能体' },
+  { href: '/blog', label: '指南' },
+  { href: '/agents', label: '编排' },
+  { href: '/workflows', label: '工作流' },
+];
+
 export function TopBar() {
-  const { toggleSidebar, sidebarOpen, openQuickSearch, theme, setTheme } = useUIStore();
+  const pathname = usePathname();
+  const openQuickSearch = useUIStore((s) => s.openQuickSearch);
+
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname.startsWith(href);
+  };
 
   return (
-    <header className="h-12 flex items-center gap-4 px-5 border-b border-[var(--line)]"
-      style={{ background: '#060609' }}>
-      <button onClick={toggleSidebar}
-        className="p-1 text-[var(--fg-faint)] hover:text-[var(--fg)] transition-colors"
-        title={sidebarOpen ? '收起' : '展开'}>
-        {sidebarOpen ? <PanelLeftClose size={15} /> : <PanelLeftOpen size={15} />}
-      </button>
+    <header className="nav-bar">
+      {/* Brand */}
+      <Link href="/" className="nav-brand" style={{ color: "var(--text)" }}>
+        <span style={{
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          width: 28, height: 28, borderRadius: 7,
+          background: "linear-gradient(135deg, var(--red), #8b1a1a)",
+          fontSize: 14, fontWeight: 900, color: "#fff"
+        }}>墨</span>
+        <span>TG<span style={{ color: "var(--gold)" }}>960W</span></span>
+      </Link>
 
-      <button onClick={openQuickSearch}
-        className="flex items-center gap-2 flex-1 max-w-sm px-3 py-1.5 text-sm border border-[var(--line)] text-[var(--fg-faint)] hover:border-[var(--fg-faint)] transition-colors">
+      {/* Nav links */}
+      <nav style={{ display: "flex", gap: 4, alignItems: "center" }}>
+        {NAV.map(item => (
+          <Link key={item.href} href={item.href}
+            className={`nav-link ${isActive(item.href) ? 'active' : ''}`}
+            style={{ padding: "4px 14px" }}>
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+
+      <div style={{ flex: 1 }} />
+
+      {/* Search + Favorites */}
+      <button onClick={openQuickSearch} className="nav-search" style={{ cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 6 }}>
         <Search size={14} />
-        <span className="flex-1 text-left">搜索智能体…</span>
-        <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-[#0d0d12] text-[var(--fg-faint)]">⌘K</kbd>
+        <span>搜索智能体…</span>
       </button>
 
-      <div className="flex-1" />
-      <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        className="p-1 text-[var(--fg-faint)] hover:text-[var(--fg)] transition-colors">
-        {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-      </button>
+      <Link href="/favorites" className="nav-link">收藏</Link>
     </header>
   );
 }
