@@ -14,7 +14,7 @@ const NAV = [
   { href: '/blog', label: '使用指南', icon: BookOpen },
   { href: '/agents', label: '智能体编排', icon: Sparkles },
   { href: '/workflows', label: '工作流', icon: Workflow },
-  { href: '/favorites', label: '我的收藏', icon: Star },
+  { href: '/favorites', label: '收藏', icon: Star },
   { href: '/history', label: '使用记录', icon: Clock },
   { href: '/settings', label: '设置', icon: Settings },
 ];
@@ -41,19 +41,18 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="h-full flex flex-col border-r border-white/5" style={{ background: '#0d0d12' }}>
+    <aside className="h-full flex flex-col border-r border-white/[0.04]" style={{ background: 'var(--bg-sidebar)' }}>
       {/* Logo */}
-      <Link href="/" className="flex items-center gap-2.5 px-5 py-4 border-b border-white/5">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
-          <Sparkles size={16} className="text-amber-950" />
+      <Link href="/" className="flex items-center gap-2.5 px-5 py-4 border-b border-white/[0.04]">
+        <div className="w-7 h-7 rounded-lg flex items-center justify-center"
+          style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)" }}>
+          <Sparkles size={14} className="text-amber-950" />
         </div>
-        <span className="font-black text-base tracking-tight">
-          <span className="g-text">TG960W</span>
-        </span>
+        <span className="font-black text-sm tracking-tight gradient-text">TG960W</span>
       </Link>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+      <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-0.5">
         {NAV.map(({ href, label, icon: Icon }) => (
           <Link key={href} href={href}
             className={`sidebar-link ${isActive(href) ? 'active' : ''}`}>
@@ -62,12 +61,10 @@ export function Sidebar() {
           </Link>
         ))}
 
-        {/* Categories */}
-        <div className="pt-3 mt-3 border-t border-white/5">
+        <div className="pt-2 mt-2 border-t border-white/[0.04]">
           <button onClick={() => setExpanded(!expanded)}
-            className="flex items-center gap-2 w-full px-3 py-1.5 text-[10px] font-semibold text-zinc-500 uppercase tracking-widest hover:text-zinc-300 transition-colors">
+            className="flex items-center gap-2 w-full px-3 py-1.5 text-[10px] font-semibold text-zinc-600 uppercase tracking-widest hover:text-zinc-400 transition-colors">
             {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-            <FolderTree size={12} />
             分类浏览 · {cats.length}
           </button>
           {expanded && (
@@ -77,7 +74,7 @@ export function Sidebar() {
                   className={`sidebar-link text-xs !py-1.5 !px-2 ${isActive(`/categories/${c.slug}`) ? 'active' : ''}`}>
                   <span className="text-sm flex-shrink-0">{c.icon}</span>
                   <span className="flex-1 truncate">{c.name}</span>
-                  <span className="text-[10px] text-zinc-600">{c.skillCount}</span>
+                  <span className="text-[10px] text-zinc-700">{c.skillCount}</span>
                 </Link>
               ))}
             </div>
@@ -86,10 +83,10 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-5 py-3 border-t border-white/5 text-xs text-zinc-500">
-        <div className="flex items-center justify-between">
+      <div className="px-5 py-3 border-t border-white/[0.04]">
+        <div className="flex items-center justify-between text-xs text-zinc-600">
           <span>智能体总数</span>
-          <span className="font-mono font-semibold text-zinc-300">{total.toLocaleString()}</span>
+          <span className="font-mono font-semibold text-zinc-500">{total.toLocaleString()}</span>
         </div>
       </div>
     </aside>
