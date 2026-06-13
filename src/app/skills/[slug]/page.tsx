@@ -16,7 +16,7 @@ export default function SkillDetailPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/skills/${slug}`).then(r => r.json()).then(d => { setSkill(d); setLoading(false); }).catch(() => setLoading(false));
+    fetch(`/api/skills/${slug}`).then(r => r.json()).then(d => { setSkill(d.skill || d); setLoading(false); }).catch(() => setLoading(false));
   }, [slug]);
 
   const copyCommand = () => {

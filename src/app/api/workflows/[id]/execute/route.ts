@@ -4,6 +4,7 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const { id } = await params;
   const workflow = await prisma.workflow.findUnique({
     where: { id },
@@ -31,4 +32,5 @@ export async function POST(
   });
 
   return Response.json({ workflow: { id: workflow.id, name: workflow.name }, commands });
+  } catch (e: any) { return Response.json({ error: e.message }, { status: 500 }); }
 }
